@@ -1,0 +1,55 @@
+name: Healthcare Management System CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Check Website
+        run: |
+          test -f index.html
+          echo "Healthcare Management System build successful."
+
+      - name: Run Basic Test
+        run: |
+          grep -q "Healthcare Management System" index.html
+          echo "Test passed successfully."
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Website
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+
+      - name: Deploy Website
+        id: deployment
+        uses: actions/deploy-pages@v4
